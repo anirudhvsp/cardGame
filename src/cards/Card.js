@@ -35,32 +35,34 @@ export default class Card extends Phaser.GameObjects.Image {
 
     update() {
         if (this.dragging) {
-            // Get current pointer position
             const pointer = this.scene.input.activePointer;
             this.targetX = pointer.x;
             this.targetY = pointer.y;
-
+        }
+    
+        if (this.targetX !== undefined && this.targetY !== undefined) {
             // Calculate distance to target
             const dx = this.targetX - this.x;
             const dy = this.targetY - this.y;
-
+    
             // Spring physics constants
-            const springStrength = 1.0;
-            const dampening = 0.1;
-
+            const springStrength = 0.9;
+            const dampening = 0.2;
+    
             // Update velocities
             this.velocityX += dx * springStrength;
             this.velocityY += dy * springStrength;
-
+    
             // Apply dampening
             this.velocityX *= dampening;
             this.velocityY *= dampening;
-
+    
             // Update position
             this.x += this.velocityX;
             this.y += this.velocityY;
         }
     }
+    
 
     onSelect() {
         console.log(`Selected ${this.type} card with value ${this.value}`);

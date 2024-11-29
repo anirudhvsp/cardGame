@@ -4,21 +4,35 @@ export default class Deck {
     constructor(scene) {
         this.scene = scene;
         this.cards = [];
+        this.deckX = this.scene.cameras.main.centerX;
+        this.deckY = this.scene.cameras.main.centerY;        
         this.initializeDeck();
+    }
+
+    // Add this new method
+    setDeckPosition(x, y) {
+        this.deckX = x;
+        this.deckY = y;
+        // Position all cards in deck
+        this.cards.forEach(card => {
+            card.setPosition(this.deckX, this.deckY);
+        });
     }
 
     initializeDeck() {
         // Create initial deck of cards
-        const cardTypes = ['attack', 'defense', 'special'];
-        for (let type of cardTypes) {
-            for (let i = 1; i <= 10; i++) {
+        const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+        const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
+        
+        for (let suit of suits) {
+            for (let value of values) {
                 this.cards.push(
                     new Card(
                         this.scene, 
                         0, 0, 
                         `cardBack`, 
-                        type, 
-                        i
+                        suit, 
+                        value
                     )
                 );
             }
