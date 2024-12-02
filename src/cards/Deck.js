@@ -21,7 +21,7 @@ export default class Deck {
 
     initializeDeck() {
         // Create initial deck of cards
-        const suits = ['hearts', 'diamonds', 'clubs', 'spades'];
+        const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
         const values = ['A', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K'];
         
         for (let suit of suits) {

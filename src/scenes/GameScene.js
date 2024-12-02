@@ -8,6 +8,16 @@ export default class GameScene extends Phaser.Scene {
 
     preload() {
         this.load.image('cardBack', 'assets/cards/cardBack1.png');
+        
+        // Load all card fronts
+        const suits = ['Hearts', 'Diamonds', 'Clubs', 'Spades'];
+        const ranks = ['2', '3', '4', '5', '6', '7', '8', '9', '10', 'J', 'Q', 'K', 'A'];
+        
+        suits.forEach(suit => {
+            ranks.forEach(rank => {
+                this.load.image(`cardFront_${suit}_${rank}`, `assets/cards/cardFront_${suit}_${rank}.png`);
+            });
+        });
     }
 
     create() {
@@ -44,8 +54,10 @@ export default class GameScene extends Phaser.Scene {
         .setOrigin(0.5)
         .setInteractive()
         .on('pointerdown', () => this.collectCards());
+
     }
     spreadCards() {
+        this.deck.shuffle();
         const players = ['top', 'right', 'bottom', 'left'];
         const cardsPerPlayer = 4;
         let cardIndex = 0;
@@ -54,9 +66,9 @@ export default class GameScene extends Phaser.Scene {
         players.forEach(player => {
             const basePosition = this.playerPositions[player];
             
-            for(let row = 0; row < 2; row++) {
-                for(let col = 0; col < 2; col++) {
-                    if (cardIndex < this.deck.cards.length) {
+            for(let row = 0; row < 1; row++) {
+                for(let col = 0; col < 3; col++) {
+                    if (cardIndex < this.deck.cards.length) { 
                         const card = this.deck.cards[cardIndex];
                         // Calculate grid position with fixed spacing
                         const offsetX = (col * 45) - 32; // Reduced to 65 pixels between cards
@@ -79,17 +91,49 @@ export default class GameScene extends Phaser.Scene {
             card.targetY = deckPosition.y;
         }
     }
-    collectCards() {        const deckPosition = { x: 400, y: 300 };
+    collectCards() {        
+        const deckPosition = { x: 400, y: 300 };
         this.deck.cards.forEach((card, index) => {
-            this.time.delayedCall(index * 100, () => {
-                card.targetX = deckPosition.x;
-                card.targetY = deckPosition.y;
-            });
-        });
+            if (card.targetX !== deckPosition.x || card.targetY !== deckPosition.y) {
+                this.time.delayedCall(index * 50, () => {
+                    if(card.isFlipped){
+                        card.flip();
+                    }
+                    card.targetX = deckPosition.x;
+                    card.targetY = deckPosition.y;
+                    this.deck.shuffle();
+                });
+            }
+        });        
     }
 
     update() {
-        // Game loop
+        this.deck.cards.forEach((card, index) => {
+            if (card.targetX !== undefined && card.targetY !== undefined) {
+                const dx = card.targetX - card.x;
+                const dy = card.targetY - card.y;
+                
+                // Move cards with easing
+                card.x += dx * 0.1;
+                card.y += dy * 0.1;
+    
+                // Create 3D effect using scale and angle
+                const scaleX = 1 - Math.abs(dx * 0.001);
+                card.scaleX = Math.max(0.7, scaleX);
+                card.angle = -dx * 0.1;
+    
+                // Calculate lift and offset based on movement
+                const speed = Math.sqrt(dx * dx + dy * dy);
+                const lift = Math.min(speed * 0.05, 15);
+                const movementOffset = Math.min(speed * 0.1, 10);
+                
+                // Apply lift and offset
+                card.y -= lift;
+                card.x -= movementOffset;
+                card.y -= movementOffset;
+    
+            }
+        });
     }
 }
 
